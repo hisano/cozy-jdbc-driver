@@ -5,6 +5,7 @@ import java.sql.Connection
 import java.sql.Driver
 import java.sql.DriverPropertyInfo
 import java.sql.SQLException
+import java.sql.SQLFeatureNotSupportedException
 import java.util.*
 import java.util.logging.Logger
 
@@ -48,8 +49,5 @@ class CozyDriver : Driver {
         TODO("Not yet implemented")
     }
 
-    override fun getParentLogger(): Logger {
-        TODO("Not yet implemented")
-    }
+    override fun getParentLogger(): Logger = throw SQLFeatureNotSupportedException()
 }
-
