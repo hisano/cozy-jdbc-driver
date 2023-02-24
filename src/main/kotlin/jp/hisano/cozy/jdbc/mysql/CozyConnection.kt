@@ -4,6 +4,8 @@ import com.github.jasync.sql.db.ConcreteConnection
 import com.github.jasync.sql.db.Configuration
 import com.github.jasync.sql.db.mysql.pool.MySQLConnectionFactory
 import java.sql.*
+import java.sql.ResultSet.CONCUR_READ_ONLY
+import java.sql.ResultSet.TYPE_FORWARD_ONLY
 import java.util.*
 import java.util.concurrent.Executor
 
@@ -30,14 +32,16 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
         TODO("Not yet implemented")
     }
 
-    override fun createStatement(): Statement = CozyStatement(this)
+    override fun createStatement(): Statement = createStatement(TYPE_FORWARD_ONLY, CONCUR_READ_ONLY)
 
-    override fun createStatement(resultSetType: Int, resultSetConcurrency: Int): Statement {
-        TODO("Not yet implemented")
-    }
+    override fun createStatement(resultSetType: Int, resultSetConcurrency: Int): Statement =
+        createStatement(resultSetType, resultSetConcurrency, holdability)
 
     override fun createStatement(resultSetType: Int, resultSetConcurrency: Int, resultSetHoldability: Int): Statement {
-        TODO("Not yet implemented")
+        if (isClosed) {
+            throw SQLException("This connection has been closed.")
+        }
+        return CozyStatement(this, resultSetType, resultSetConcurrency, resultSetHoldability)
     }
 
     override fun prepareStatement(sql: String?): PreparedStatement {

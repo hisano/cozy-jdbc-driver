@@ -5,7 +5,12 @@ import java.sql.ResultSet
 import java.sql.SQLWarning
 import java.sql.Statement
 
-internal class CozyStatement(val connection: CozyConnection) : Statement {
+internal class CozyStatement(
+    val connection: CozyConnection,
+    val type: Int,
+    val concurrency: Int,
+    val holdability: Int
+) : Statement {
     override fun executeQuery(sql: String?): ResultSet {
         requireNotNull(sql)
 
