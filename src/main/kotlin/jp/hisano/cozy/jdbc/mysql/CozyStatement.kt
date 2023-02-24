@@ -1,9 +1,16 @@
 package jp.hisano.cozy.jdbc.mysql
 
+import com.github.jasync.sql.db.QueryResult
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLWarning
 import java.sql.Statement
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
+
+typealias Mutex = ReentrantLock
 
 internal class CozyStatement(
     val connection: CozyConnection,
@@ -11,11 +18,18 @@ internal class CozyStatement(
     val concurrency: Int,
     val holdability: Int
 ) : Statement {
+    private val mutex = Mutex(true)
+
+    private var completableFuture: AtomicReference<CompletableFuture<QueryResult>?> = AtomicReference()
+
     override fun executeQuery(sql: String?): ResultSet {
         requireNotNull(sql)
 
-        val queryResult = connection.concreteConnection.sendQuery(sql).get()
-        return CozyResultSet(queryResult)
+        mutex.withLock { 
+            val completableFuture = connection.concreteConnection.sendQuery(sql) 
+            this.completableFuture.set(completableFuture)
+            return CozyResultSet(completableFuture.get())
+        }
     }
 
     override fun <T : Any?> unwrap(iface: Class<T>?): T {
@@ -75,7 +89,7 @@ internal class CozyStatement(
     }
 
     override fun cancel() {
-        TODO("Not yet implemented")
+        completableFuture.get()?.cancel(true)
     }
 
     override fun getWarnings(): SQLWarning {
