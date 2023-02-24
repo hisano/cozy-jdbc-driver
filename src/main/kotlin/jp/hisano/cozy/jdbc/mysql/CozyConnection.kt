@@ -4,14 +4,15 @@ import com.github.jasync.sql.db.ConcreteConnection
 import com.github.jasync.sql.db.Configuration
 import com.github.jasync.sql.db.mysql.pool.MySQLConnectionFactory
 import java.sql.*
-import java.sql.ResultSet.CONCUR_READ_ONLY
-import java.sql.ResultSet.TYPE_FORWARD_ONLY
+import java.sql.ResultSet.*
 import java.util.*
 import java.util.concurrent.Executor
 
 internal class CozyConnection(host: String, port: Int, database: String, username: String, password: String) :
     Connection {
     val concreteConnection: ConcreteConnection
+
+    private var holdability: Int = CLOSE_CURSORS_AT_COMMIT
 
     init {
         val connectionFactory = MySQLConnectionFactory(Configuration(username, host, port, password, database))
@@ -42,6 +43,12 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
             throw SQLException("This connection has been closed.")
         }
         return CozyStatement(this, resultSetType, resultSetConcurrency, resultSetHoldability)
+    }
+
+    override fun getHoldability(): Int = holdability
+
+    override fun setHoldability(newValue: Int) {
+        holdability = newValue
     }
 
     override fun prepareStatement(sql: String?): PreparedStatement {
@@ -155,14 +162,6 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
     }
 
     override fun setTypeMap(map: MutableMap<String, Class<*>>?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun setHoldability(holdability: Int) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getHoldability(): Int {
         TODO("Not yet implemented")
     }
 
