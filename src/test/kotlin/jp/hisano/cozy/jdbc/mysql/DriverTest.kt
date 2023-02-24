@@ -12,7 +12,7 @@ import java.sql.DriverManager
 @Testcontainers(disabledWithoutDocker = true)
 class DriverTest {
     @Container
-    val container = MySQLContainer<Nothing>(DockerImageName.parse("mysql:8.0.32"))
+    val container = MySQLContainer(DockerImageName.parse("mysql:8.0.32"))
 
     companion object {
         init {
