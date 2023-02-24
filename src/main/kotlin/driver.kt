@@ -7,6 +7,7 @@ import com.github.jasync.sql.db.postgresql.pool.PostgreSQLConnectionFactory
 import java.io.InputStream
 import java.io.Reader
 import java.math.BigDecimal
+import java.net.URI
 import java.net.URL
 import java.sql.*
 import java.sql.Date
@@ -14,10 +15,9 @@ import java.util.*
 import java.util.concurrent.Executor
 import java.util.logging.Logger
 
-
 class CozyDriver : Driver {
-    override fun connect(url: String, info: Properties?): Connection? {
-        if (!url.startsWith("jdbc:cozy://")) {
+    override fun connect(url: String?, info: Properties?): Connection? {
+        if (url == null || !acceptsURL(url)) {
             return null
         }
         requireNotNull(info)
@@ -25,17 +25,12 @@ class CozyDriver : Driver {
         val user = info["user"]?.toString() ?: return null
         val password = info["password"]?.toString() ?: return null
 
-        val matchResult =
-            "jdbc:cozy://([a-zA-Z0-9.-]+)(:\\d+)?/([a-zA-Z0-9._-]+)".toRegex().matchEntire(url) ?: return null
-
-        val (host, portString, database) = matchResult.destructured
-        val port = portString.substring(1).toIntOrNull() ?: return null
-
-        return CozyConnection(host, port, database, user, password)
+        val uri = URI(url.substringAfter("jdbc:"))
+        return CozyConnection(uri.host, uri.port, uri.path.substringAfter("/"), user, password)
     }
 
     override fun acceptsURL(url: String?): Boolean {
-        TODO("Not yet implemented")
+        return url?.startsWith("jdbc:postgresql://") ?: false
     }
 
     override fun getPropertyInfo(url: String?, info: Properties?): Array<DriverPropertyInfo> {
