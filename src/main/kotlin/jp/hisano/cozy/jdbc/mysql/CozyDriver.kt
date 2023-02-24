@@ -4,21 +4,28 @@ import java.net.URI
 import java.sql.Connection
 import java.sql.Driver
 import java.sql.DriverPropertyInfo
+import java.sql.SQLException
 import java.util.*
 import java.util.logging.Logger
 
 class CozyDriver : Driver {
     override fun connect(url: String?, info: Properties?): Connection? {
-        if (url == null || !acceptsURL(url)) {
+        if (url == null) {
+            throw SQLException()
+        }
+        if (!acceptsURL(url) || info == null) {
             return null
         }
-        requireNotNull(info)
 
         val user = info["user"]?.toString() ?: return null
         val password = info["password"]?.toString() ?: return null
 
         val uri = URI("jdbc://${url.substringAfter("//")}")
-        return CozyConnection(uri.host, uri.port, uri.path.substringAfter("/"), user, password)
+        val host = uri.host ?: return null
+        val port = if (uri.port != -1) uri.port else return null
+        val database = uri.path?.substringAfter("/") ?: return null
+
+        return CozyConnection(host, port, database, user, password)
     }
 
     override fun acceptsURL(url: String?): Boolean {
