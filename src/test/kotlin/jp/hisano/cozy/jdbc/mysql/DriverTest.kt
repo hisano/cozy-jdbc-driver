@@ -1,6 +1,5 @@
-package cozy.jdbc.mysql
+package jp.hisano.cozy.jdbc.mysql
 
-import jp.hisano.cozy.jdbc.CozyDriver
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

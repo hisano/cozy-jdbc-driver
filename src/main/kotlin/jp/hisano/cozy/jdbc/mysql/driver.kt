@@ -1,4 +1,4 @@
-package jp.hisano.cozy.jdbc
+package jp.hisano.cozy.jdbc.mysql
 
 import com.github.jasync.sql.db.ConcreteConnection
 import com.github.jasync.sql.db.Configuration
