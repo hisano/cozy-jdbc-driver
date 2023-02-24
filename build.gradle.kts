@@ -16,9 +16,9 @@ dependencies {
 
     testImplementation(kotlin("test"))
 
-    testImplementation("org.testcontainers:testcontainers:1.17.6")
-    testImplementation("org.testcontainers:junit-jupiter:1.17.6")
-    testImplementation("org.testcontainers:mysql:1.17.6")
+    testImplementation(platform("org.testcontainers:testcontainers-bom:1.17.6"))
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:mysql")
 
     testImplementation("mysql:mysql-connector-java:8.0.32")
 }
