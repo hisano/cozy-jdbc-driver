@@ -3,9 +3,12 @@ package jp.hisano.cozy.jdbc.mysql
 import com.github.jasync.sql.db.QueryResult
 import java.sql.Connection
 import java.sql.ResultSet
+import java.sql.SQLException
 import java.sql.SQLWarning
 import java.sql.Statement
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit.SECONDS
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -22,13 +25,49 @@ internal class CozyStatement(
 
     private var completableFuture: AtomicReference<CompletableFuture<QueryResult>?> = AtomicReference()
 
+    @Volatile
+    private var queryTimeoutSeconds = 0
+
+    private val isClosed = AtomicBoolean()
+
+    override fun getQueryTimeout(): Int {
+        throwSQLExceptionIfClosed()
+
+        return queryTimeout
+    }
+
+    private fun throwSQLExceptionIfClosed() {
+        if (isClosed()) {
+            throw SQLException()
+        }
+    }
+
+    override fun isClosed(): Boolean = isClosed.get()
+
+    private val isNoQueryTimeout
+        get() = queryTimeout == 0
+
+    override fun setQueryTimeout(newValue: Int) {
+        throwSQLExceptionIfClosed()
+
+        if (newValue < 0) {
+            throw SQLException()
+        }
+
+        queryTimeoutSeconds = newValue
+    }
+
+    override fun cancel() {
+        completableFuture.get()?.cancel(true)
+    }
+
     override fun executeQuery(sql: String?): ResultSet {
         requireNotNull(sql)
 
         mutex.withLock { 
             val completableFuture = connection.concreteConnection.sendQuery(sql) 
             this.completableFuture.set(completableFuture)
-            return CozyResultSet(completableFuture.get())
+            return CozyResultSet(if (isNoQueryTimeout) completableFuture.get() else completableFuture.get(queryTimeoutSeconds.toLong(), SECONDS))
         }
     }
 
@@ -78,18 +117,6 @@ internal class CozyStatement(
 
     override fun setEscapeProcessing(enable: Boolean) {
         TODO("Not yet implemented")
-    }
-
-    override fun getQueryTimeout(): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun setQueryTimeout(seconds: Int) {
-        TODO("Not yet implemented")
-    }
-
-    override fun cancel() {
-        completableFuture.get()?.cancel(true)
     }
 
     override fun getWarnings(): SQLWarning {
@@ -181,10 +208,6 @@ internal class CozyStatement(
     }
 
     override fun getResultSetHoldability(): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun isClosed(): Boolean {
         TODO("Not yet implemented")
     }
 
