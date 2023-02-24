@@ -45,9 +45,10 @@ class CozyDriver : Driver {
         TODO("Not yet implemented")
     }
 
-    override fun jdbcCompliant(): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun jdbcCompliant(): Boolean = IS_TCK_PASSED && HAS_MYSQL_SQL_92_COMPLIANCE
 
     override fun getParentLogger(): Logger = throw SQLFeatureNotSupportedException()
 }
+
+private const val IS_TCK_PASSED = false
+private const val HAS_MYSQL_SQL_92_COMPLIANCE = false
