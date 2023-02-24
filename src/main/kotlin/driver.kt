@@ -3,7 +3,7 @@ package jp.hisano.cozy.jdbc
 import com.github.jasync.sql.db.ConcreteConnection
 import com.github.jasync.sql.db.Configuration
 import com.github.jasync.sql.db.QueryResult
-import com.github.jasync.sql.db.postgresql.pool.PostgreSQLConnectionFactory
+import com.github.jasync.sql.db.mysql.pool.MySQLConnectionFactory
 import java.io.InputStream
 import java.io.Reader
 import java.math.BigDecimal
@@ -25,12 +25,12 @@ class CozyDriver : Driver {
         val user = info["user"]?.toString() ?: return null
         val password = info["password"]?.toString() ?: return null
 
-        val uri = URI(url.substringAfter("jdbc:"))
+        val uri = URI("jdbc://${url.substringAfter("//")}")
         return CozyConnection(uri.host, uri.port, uri.path.substringAfter("/"), user, password)
     }
 
     override fun acceptsURL(url: String?): Boolean {
-        return url?.startsWith("jdbc:postgresql://") ?: false
+        return url?.startsWith("jdbc:cozy:mysql://") ?: false
     }
 
     override fun getPropertyInfo(url: String?, info: Properties?): Array<DriverPropertyInfo> {
@@ -59,7 +59,7 @@ private class CozyConnection(host: String, port: Int, database: String, username
     val baseConnection: ConcreteConnection
 
     init {
-        val connectionFactory = PostgreSQLConnectionFactory(Configuration(username, host, port, password, database))
+        val connectionFactory = MySQLConnectionFactory(Configuration(username, host, port, password, database))
         baseConnection = connectionFactory.create().get()
     }
 
@@ -527,7 +527,12 @@ private class CozyResultSet(val queryResult: QueryResult) : ResultSet {
     }
 
     override fun getInt(columnIndex: Int): Int {
-        return queryResult.rows[rowIndex].getInt(columnIndex - 1) ?: throw SQLException()
+        val value = queryResult.rows[rowIndex].get(columnIndex - 1)
+        return when(value) {
+            is Number -> value.toInt()
+            null -> 0
+            else -> throw SQLException()
+        }
     }
 
     override fun getInt(columnLabel: String?): Int {

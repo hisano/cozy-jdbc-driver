@@ -12,13 +12,15 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.jasync-sql:jasync-postgresql:2.1.16")
+    implementation("com.github.jasync-sql:jasync-mysql:2.1.16")
 
     testImplementation(kotlin("test"))
 
     testImplementation("org.testcontainers:testcontainers:1.17.6")
     testImplementation("org.testcontainers:junit-jupiter:1.17.6")
-    testImplementation("org.testcontainers:postgresql:1.17.6")
+    testImplementation("org.testcontainers:mysql:1.17.6")
+
+    testImplementation("mysql:mysql-connector-java:8.0.32")
 }
 
 tasks.test {
