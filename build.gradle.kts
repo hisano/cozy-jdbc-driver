@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     kotlin("jvm") version "1.7.10"
@@ -8,6 +10,7 @@ plugins {
 
 group = "jp.hisano"
 version = "1.0-SNAPSHOT"
+val shadedPackage = "jp.hisano.cozy.jdbc.mysql.shaded"
 
 repositories {
     mavenCentral()
@@ -31,4 +34,13 @@ tasks.test {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+tasks.create<ConfigureShadowRelocation>("relocateShadowJar") {
+    target = tasks["shadowJar"] as ShadowJar
+    prefix = shadedPackage
+}
+
+tasks.named<ShadowJar>("shadowJar").configure {
+    dependsOn(tasks["relocateShadowJar"])
 }
