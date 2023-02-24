@@ -9,6 +9,12 @@ import java.sql.SQLFeatureNotSupportedException
 import java.util.*
 import java.util.logging.Logger
 
+private const val DRIVER_MAJOR_VERSION = 1
+private const val DRIVER_MINOR_VERSION = 0
+
+private const val IS_TCK_PASSED = false
+private const val HAS_MYSQL_SQL_92_COMPLIANCE = false
+
 class CozyDriver : Driver {
     override fun connect(url: String?, info: Properties?): Connection? {
         if (url == null) {
@@ -37,18 +43,11 @@ class CozyDriver : Driver {
         TODO("Not yet implemented")
     }
 
-    override fun getMajorVersion(): Int {
-        TODO("Not yet implemented")
-    }
+    override fun getMajorVersion(): Int = DRIVER_MAJOR_VERSION
 
-    override fun getMinorVersion(): Int {
-        TODO("Not yet implemented")
-    }
+    override fun getMinorVersion(): Int = DRIVER_MINOR_VERSION
 
     override fun jdbcCompliant(): Boolean = IS_TCK_PASSED && HAS_MYSQL_SQL_92_COMPLIANCE
 
     override fun getParentLogger(): Logger = throw SQLFeatureNotSupportedException()
 }
-
-private const val IS_TCK_PASSED = false
-private const val HAS_MYSQL_SQL_92_COMPLIANCE = false
