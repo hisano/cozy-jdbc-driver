@@ -9,11 +9,17 @@ import java.util.concurrent.Executor
 
 internal class CozyConnection(host: String, port: Int, database: String, username: String, password: String) :
     Connection {
-    val baseConnection: ConcreteConnection
+    val concreteConnection: ConcreteConnection
 
     init {
         val connectionFactory = MySQLConnectionFactory(Configuration(username, host, port, password, database))
-        baseConnection = connectionFactory.create().get()
+        concreteConnection = connectionFactory.create().get()
+    }
+
+    override fun isClosed(): Boolean = !concreteConnection.isConnected()
+
+    override fun close() {
+        concreteConnection.disconnect()
     }
 
     override fun <T : Any?> unwrap(iface: Class<T>?): T {
@@ -21,10 +27,6 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
     }
 
     override fun isWrapperFor(iface: Class<*>?): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun close() {
         TODO("Not yet implemented")
     }
 
@@ -105,10 +107,6 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
     }
 
     override fun rollback(savepoint: Savepoint?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun isClosed(): Boolean {
         TODO("Not yet implemented")
     }
 

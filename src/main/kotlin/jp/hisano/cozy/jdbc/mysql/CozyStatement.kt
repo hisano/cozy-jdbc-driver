@@ -9,7 +9,7 @@ internal class CozyStatement(val connection: CozyConnection) : Statement {
     override fun executeQuery(sql: String?): ResultSet {
         requireNotNull(sql)
 
-        val queryResult = connection.baseConnection.sendQuery(sql).get()
+        val queryResult = connection.concreteConnection.sendQuery(sql).get()
         return CozyResultSet(queryResult)
     }
 
