@@ -109,8 +109,9 @@ class DriverTest {
         updateStatement.setString(2, "Tom")
         assertEquals(1, updateStatement.executeUpdate())
 
-        val selectStatement = cozyConnection.createStatement()
-        assertTrue(selectStatement.execute("SELECT age FROM person"))
+        val selectStatement = cozyConnection.prepareStatement("SELECT age FROM person WHERE name = ?")
+        selectStatement.setString(1, "Tom")
+        assertTrue(selectStatement.execute())
         selectStatement.resultSet.run {
             assertNotNull(this)
             assertTrue(next())
