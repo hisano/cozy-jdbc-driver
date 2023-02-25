@@ -33,7 +33,7 @@ internal class CozyStatement(
     override fun getQueryTimeout(): Int {
         throwSQLExceptionIfClosed()
 
-        return queryTimeout
+        return queryTimeoutSeconds
     }
 
     private fun throwSQLExceptionIfClosed() {
@@ -45,7 +45,7 @@ internal class CozyStatement(
     override fun isClosed(): Boolean = isClosed.get()
 
     private val isNoQueryTimeout
-        get() = queryTimeout == 0
+        get() = queryTimeoutSeconds == 0
 
     override fun setQueryTimeout(newValue: Int) {
         throwSQLExceptionIfClosed()
