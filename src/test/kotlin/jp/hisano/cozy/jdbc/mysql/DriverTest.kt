@@ -38,6 +38,22 @@ class DriverTest {
         }
     }
 
+    @Test
+    fun testUpdate() {
+        """
+            CREATE TABLE person(name VARCHAR(10), age SMALLINT);
+            INSERT INTO person VALUES ('Tom', 25);
+        """.executeOn(mysqlConnection)
+
+        val statement = cozyConnection.createStatement()
+        val result = statement.executeUpdate("UPDATE person SET age = 30 WHERE name = 'Tom'")
+        assertEquals(1, result)
+        val resultSet = statement.executeQuery("SELECT age FROM person")
+        while (resultSet.next()) {
+            assertEquals(30, resultSet.getInt("age"))
+        }
+    }
+
     companion object {
         init {
             DriverManager.registerDriver(CozyDriver())
