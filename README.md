@@ -4,7 +4,9 @@ This is an experimental project to study JDBC and Kotlin.
 
 ## Features (under development)
 
-* Supports SELECT/INSERT/UPDATE commands with ResultSet
+* Supports SELECT command with ResultSet
+* Supports Statement/PreparedStatement
+* Supports auto commit switching
 * Implemented in Kotlin
 * Available under Apache License
 
