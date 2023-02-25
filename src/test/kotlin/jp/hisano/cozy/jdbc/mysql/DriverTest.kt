@@ -97,6 +97,28 @@ class DriverTest {
         assertTrue(connection.autoCommit)
     }
 
+    @Test
+    fun testPrepareStatement() {
+        mysqlConnection.execute("""
+            CREATE TABLE person (name VARCHAR(10), age SMALLINT);
+            INSERT INTO person VALUES ('Tom', 25);
+        """)
+
+        val updateStatement = cozyConnection.prepareStatement("UPDATE person SET age = ? WHERE name = ?")
+        updateStatement.setInt(1, 30)
+        updateStatement.setString(2, "Tom")
+        assertEquals(1, updateStatement.executeUpdate())
+
+        val selectStatement = cozyConnection.createStatement()
+        assertTrue(selectStatement.execute("SELECT age FROM person"))
+        selectStatement.resultSet.run {
+            assertNotNull(this)
+            assertTrue(next())
+            assertEquals(30, getInt("age"))
+        }
+        assertEquals(-1, selectStatement.updateCount)
+    }
+
     companion object {
         init {
             DriverManager.registerDriver(CozyDriver())

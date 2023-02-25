@@ -16,11 +16,11 @@ import kotlin.concurrent.withLock
 
 typealias Mutex = ReentrantLock
 
-internal class CozyStatement(
+internal open class CozyStatement(
     val connection: CozyConnection,
-    val type: Int,
-    val concurrency: Int,
-    val holdability: Int
+    val type: Int = ResultSet.TYPE_FORWARD_ONLY,
+    val concurrency: Int = ResultSet.CONCUR_READ_ONLY,
+    val holdability: Int = ResultSet.CLOSE_CURSORS_AT_COMMIT
 ) : Statement {
     private val mutex = Mutex(true)
 
@@ -78,15 +78,22 @@ internal class CozyStatement(
         if (sql == null || sql.length == 0) {
             throw SQLException()
         }
+        return executeSql(sql, null)
+    }
 
+    protected fun executeSql(sql: String, parameters: List<Any?>?): Boolean {
         mutex.withLock {
-            val completableFuture = connection.concreteConnection.sendQuery(sql)
+            val completableFuture = if (parameters == null) {
+                connection.concreteConnection.sendQuery(sql)
+            } else {
+                connection.concreteConnection.sendPreparedStatement(sql, parameters, true)
+            }
             this.completableFuture.set(completableFuture)
             this.queryResult.set(if (isNoQueryTimeout) completableFuture.get() else completableFuture.get(queryTimeoutSeconds.toLong(), SECONDS))
         }
 
         val queryResult = this.queryResult.get() ?: return false
-        return queryResult.rows != EMPTY_RESULT_SET 
+        return queryResult.rows != EMPTY_RESULT_SET
     }
 
     override fun getResultSet(): ResultSet? {

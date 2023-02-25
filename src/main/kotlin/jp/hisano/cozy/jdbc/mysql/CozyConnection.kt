@@ -39,20 +39,30 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
         createStatement(resultSetType, resultSetConcurrency, holdability)
 
     override fun createStatement(resultSetType: Int, resultSetConcurrency: Int, resultSetHoldability: Int): Statement {
+        throwSQLExceptionIfClosed()
+        return CozyStatement(this, resultSetType, resultSetConcurrency, resultSetHoldability)
+    }
+
+    override fun prepareStatement(sql: String?): PreparedStatement {
+        if (sql == null) {
+            throw SQLException()
+        }
+
+        throwSQLExceptionIfClosed()
+
+        return CozyPreparedStatement(this, sql)
+    }
+
+    private fun throwSQLExceptionIfClosed() {
         if (isClosed) {
             throw SQLException("This connection has been closed.")
         }
-        return CozyStatement(this, resultSetType, resultSetConcurrency, resultSetHoldability)
     }
 
     override fun getHoldability(): Int = holdability
 
     override fun setHoldability(newValue: Int) {
         holdability = newValue
-    }
-
-    override fun prepareStatement(sql: String?): PreparedStatement {
-        TODO("Not yet implemented")
     }
 
     override fun prepareStatement(sql: String?, resultSetType: Int, resultSetConcurrency: Int): PreparedStatement {
