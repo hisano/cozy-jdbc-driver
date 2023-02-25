@@ -101,12 +101,18 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
         TODO("Not yet implemented")
     }
 
-    override fun setAutoCommit(autoCommit: Boolean) {
-        TODO("Not yet implemented")
+    override fun setAutoCommit(newValue: Boolean) {
+        val newNumberValue = if (newValue) 1 else 0
+        createStatement().execute("SET autocommit = $newNumberValue")
     }
 
     override fun getAutoCommit(): Boolean {
-        TODO("Not yet implemented")
+        return createStatement().use {
+            it.executeQuery("SELECT @@autocommit").use {
+                it.next()
+                it.getBoolean(1)
+            }
+        }
     }
 
     override fun commit() {

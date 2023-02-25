@@ -86,6 +86,17 @@ class DriverTest {
         assertEquals(-1, selectStatement.updateCount)
     }
 
+    @Test
+    fun testAutoCommit() {
+        val connection = cozyConnection
+
+        connection.autoCommit = false
+        assertFalse(connection.autoCommit)
+
+        connection.autoCommit = true
+        assertTrue(connection.autoCommit)
+    }
+
     companion object {
         init {
             DriverManager.registerDriver(CozyDriver())

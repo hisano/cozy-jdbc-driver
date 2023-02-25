@@ -9,12 +9,15 @@ import java.sql.*
 import java.sql.Array
 import java.sql.Date
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
     private var rowIndex = -1
 
     @Volatile
     private var wasNull = false
+
+    private val isClosed = AtomicBoolean()
 
     override fun <T : Any?> unwrap(iface: Class<T>?): T {
         TODO("Not yet implemented")
@@ -25,8 +28,12 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
     }
 
     override fun close() {
-        TODO("Not yet implemented")
+        if (!isClosed.compareAndSet(false, true)) {
+            return
+        }
     }
+
+    override fun isClosed(): Boolean = isClosed.get()
 
     override fun next(): Boolean {
         rowIndex++
@@ -62,12 +69,16 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
 
     override fun getString(columnLabel: String?): String? = this[columnLabel]?.toString()
 
-    override fun getBoolean(columnIndex: Int): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun getBoolean(columnIndex: Int): Boolean = toBoolean(this[columnIndex])
 
-    override fun getBoolean(columnLabel: String?): Boolean {
-        TODO("Not yet implemented")
+    override fun getBoolean(columnLabel: String?): Boolean = toBoolean(this[columnLabel])
+
+    private fun toBoolean(value: Any?): Boolean {
+        return when (value) {
+            is Number -> value.toInt() != 0
+            null -> false
+            else -> throw SQLException()
+        }
     }
 
     override fun getByte(columnIndex: Int): Byte = toByte(this[columnIndex])
@@ -727,10 +738,6 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
     }
 
     override fun getHoldability(): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun isClosed(): Boolean {
         TODO("Not yet implemented")
     }
 
