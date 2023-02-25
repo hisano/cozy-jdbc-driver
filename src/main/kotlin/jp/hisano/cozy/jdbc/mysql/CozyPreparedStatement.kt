@@ -211,6 +211,7 @@ internal class CozyPreparedStatement(connection: CozyConnection, val sql: String
 
     override fun executeUpdate(): Int {
         executeSql(sql, parameters)
+        parameters.clear()
         return updateCount
     }
 
