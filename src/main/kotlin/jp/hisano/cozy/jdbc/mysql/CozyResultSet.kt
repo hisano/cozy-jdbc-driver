@@ -74,20 +74,28 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
         TODO("Not yet implemented")
     }
 
-    override fun getByte(columnIndex: Int): Byte {
-        TODO("Not yet implemented")
+    override fun getByte(columnIndex: Int): Byte = toByte(this[columnIndex])
+
+    override fun getByte(columnLabel: String?): Byte = toByte(this[columnLabel])
+
+    private fun toByte(value: Any?): Byte {
+        return when (value) {
+            is Number -> value.toByte()
+            null -> 0
+            else -> throw SQLException()
+        }
     }
 
-    override fun getByte(columnLabel: String?): Byte {
-        TODO("Not yet implemented")
-    }
+    override fun getShort(columnIndex: Int): Short = toShort(this[columnIndex])
 
-    override fun getShort(columnIndex: Int): Short {
-        TODO("Not yet implemented")
-    }
+    override fun getShort(columnLabel: String?): Short = toShort(this[columnLabel])
 
-    override fun getShort(columnLabel: String?): Short {
-        TODO("Not yet implemented")
+    private fun toShort(value: Any?): Short {
+        return when (value) {
+            is Number -> value.toShort()
+            null -> 0
+            else -> throw SQLException()
+        }
     }
 
     override fun getInt(columnIndex: Int): Int = toInt(this[columnIndex])
@@ -102,28 +110,40 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
         }
     }
 
-    override fun getLong(columnIndex: Int): Long {
-        TODO("Not yet implemented")
+    override fun getLong(columnIndex: Int): Long = toLong(this[columnIndex])
+
+    override fun getLong(columnLabel: String?): Long = toLong(this[columnLabel])
+
+    private fun toLong(value: Any?): Long {
+        return when (value) {
+            is Number -> value.toLong()
+            null -> 0
+            else -> throw SQLException()
+        }
     }
 
-    override fun getLong(columnLabel: String?): Long {
-        TODO("Not yet implemented")
+    override fun getFloat(columnIndex: Int): Float = toFloat(this[columnIndex])
+
+    override fun getFloat(columnLabel: String?): Float = toFloat(this[columnLabel])
+
+    private fun toFloat(value: Any?): Float {
+        return when (value) {
+            is Number -> value.toFloat()
+            null -> 0.0f
+            else -> throw SQLException()
+        }
     }
 
-    override fun getFloat(columnIndex: Int): Float {
-        TODO("Not yet implemented")
-    }
+    override fun getDouble(columnIndex: Int): Double = toDouble(this[columnIndex])
 
-    override fun getFloat(columnLabel: String?): Float {
-        TODO("Not yet implemented")
-    }
+    override fun getDouble(columnLabel: String?): Double = toDouble(this[columnLabel])
 
-    override fun getDouble(columnIndex: Int): Double {
-        TODO("Not yet implemented")
-    }
-
-    override fun getDouble(columnLabel: String?): Double {
-        TODO("Not yet implemented")
+    private fun toDouble(value: Any?): Double {
+        return when (value) {
+            is Number -> value.toDouble()
+            null -> 0.0
+            else -> throw SQLException()
+        }
     }
 
     override fun getBigDecimal(columnIndex: Int, scale: Int): BigDecimal {

@@ -35,7 +35,12 @@ class DriverTest {
         val statement = cozyConnection.createStatement()
         val resultSet = statement.executeQuery("SELECT value FROM test")
         while (resultSet.next()) {
+            assertEquals(100, resultSet.getByte(1))
+            assertEquals(100, resultSet.getShort(1))
             assertEquals(100, resultSet.getInt(1))
+            assertEquals(100, resultSet.getLong(1))
+            assertEquals(100.0f, resultSet.getFloat(1))
+            assertEquals(100.0, resultSet.getDouble(1))
         }
     }
 
