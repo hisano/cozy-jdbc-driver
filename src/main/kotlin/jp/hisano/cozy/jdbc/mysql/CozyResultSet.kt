@@ -58,13 +58,9 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
 
     override fun wasNull(): Boolean = wasNull
 
-    override fun getString(columnIndex: Int): String {
-        TODO("Not yet implemented")
-    }
+    override fun getString(columnIndex: Int): String? = this[columnIndex]?.toString()
 
-    override fun getString(columnLabel: String?): String {
-        TODO("Not yet implemented")
-    }
+    override fun getString(columnLabel: String?): String? = this[columnLabel]?.toString()
 
     override fun getBoolean(columnIndex: Int): Boolean {
         TODO("Not yet implemented")

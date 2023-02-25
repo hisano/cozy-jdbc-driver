@@ -54,8 +54,12 @@ class DriverTest {
         val statement = cozyConnection.createStatement()
         val result = statement.executeUpdate("UPDATE person SET age = 30 WHERE name = 'Tom'")
         assertEquals(1, result)
-        val resultSet = statement.executeQuery("SELECT age FROM person")
+        val resultSet = statement.executeQuery("SELECT name, age FROM person")
         while (resultSet.next()) {
+            assertEquals("Tom", resultSet.getString(1))
+            assertEquals("Tom", resultSet.getString("name"))
+
+            assertEquals(30, resultSet.getInt(2))
             assertEquals(30, resultSet.getInt("age"))
         }
     }
