@@ -35,6 +35,8 @@ internal class CozyPreparedStatement(connection: CozyConnection, val sql: String
 
     override fun setString(parameterIndex: Int, x: String?) = setParameter(parameterIndex, x)
 
+    override fun clearParameters() = parameters.clear()
+
     private fun setParameter(index: Int, value: Any?) {
         parameters[index - 1] = value
     }
@@ -146,10 +148,6 @@ internal class CozyPreparedStatement(connection: CozyConnection, val sql: String
     }
 
     override fun setBinaryStream(parameterIndex: Int, x: InputStream?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun clearParameters() {
         TODO("Not yet implemented")
     }
 
