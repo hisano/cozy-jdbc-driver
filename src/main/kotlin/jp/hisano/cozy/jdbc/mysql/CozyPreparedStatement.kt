@@ -17,13 +17,23 @@ internal class CozyPreparedStatement(connection: CozyConnection, val sql: String
         parameters = CopyOnWriteArrayList(Array<Any?>(sql.count { it == '?' }, { null }))
     }
 
-    override fun setInt(parameterIndex: Int, x: Int) {
-        setParameter(parameterIndex, x)
-    }
+    override fun setBoolean(parameterIndex: Int, x: Boolean) = setParameter(parameterIndex, x)
 
-    override fun setString(parameterIndex: Int, x: String?) {
-        setParameter(parameterIndex, x)
-    }
+    override fun setByte(parameterIndex: Int, x: Byte) = setParameter(parameterIndex, x)
+
+    override fun setShort(parameterIndex: Int, x: Short) = setParameter(parameterIndex, x)
+
+    override fun setInt(parameterIndex: Int, x: Int) = setParameter(parameterIndex, x)
+
+    override fun setLong(parameterIndex: Int, x: Long) = setParameter(parameterIndex, x)
+
+    override fun setFloat(parameterIndex: Int, x: Float) = setParameter(parameterIndex, x)
+
+    override fun setDouble(parameterIndex: Int, x: Double) = setParameter(parameterIndex, x)
+
+    override fun setBigDecimal(parameterIndex: Int, x: BigDecimal?) = setParameter(parameterIndex, x)
+
+    override fun setString(parameterIndex: Int, x: String?) = setParameter(parameterIndex, x)
 
     private fun setParameter(index: Int, value: Any?) {
         parameters[index - 1] = value
@@ -81,22 +91,6 @@ internal class CozyPreparedStatement(connection: CozyConnection, val sql: String
 
     override fun execute(sql: String?, columnNames: kotlin.Array<out String>?): Boolean {
         throw SQLException()
-    }
-
-    override fun setLong(parameterIndex: Int, x: Long) {
-        TODO("Not yet implemented")
-    }
-
-    override fun setFloat(parameterIndex: Int, x: Float) {
-        TODO("Not yet implemented")
-    }
-
-    override fun setDouble(parameterIndex: Int, x: Double) {
-        TODO("Not yet implemented")
-    }
-
-    override fun setBigDecimal(parameterIndex: Int, x: BigDecimal?) {
-        TODO("Not yet implemented")
     }
 
     override fun setBytes(parameterIndex: Int, x: ByteArray?) {
@@ -268,18 +262,6 @@ internal class CozyPreparedStatement(connection: CozyConnection, val sql: String
     }
 
     override fun setNull(parameterIndex: Int, sqlType: Int, typeName: String?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun setBoolean(parameterIndex: Int, x: Boolean) {
-        TODO("Not yet implemented")
-    }
-
-    override fun setByte(parameterIndex: Int, x: Byte) {
-        TODO("Not yet implemented")
-    }
-
-    override fun setShort(parameterIndex: Int, x: Short) {
         TODO("Not yet implemented")
     }
 }
