@@ -1,5 +1,6 @@
 package jp.hisano.cozy.jdbc.mysql
 
+import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,13 +27,13 @@ class DriverTest {
 
     @Test
     fun testSmallInt() {
-        """
-            create table test(value smallint);
-            insert into test values (100);
-        """.executeOn(mysqlConnection)
+        mysqlConnection.execute("""
+            CREATE TABLE test (value smallint);
+            INSERT INTO test VALUES (100);
+        """)
 
         val statement = cozyConnection.createStatement()
-        val resultSet = statement.executeQuery("select value from test")
+        val resultSet = statement.executeQuery("SELECT value FROM test")
         while (resultSet.next()) {
             assertEquals(100, resultSet.getInt(1))
         }
@@ -40,10 +41,10 @@ class DriverTest {
 
     @Test
     fun testUpdate() {
-        """
-            CREATE TABLE person(name VARCHAR(10), age SMALLINT);
+        mysqlConnection.execute("""
+            CREATE TABLE person (name VARCHAR(10), age SMALLINT);
             INSERT INTO person VALUES ('Tom', 25);
-        """.executeOn(mysqlConnection)
+        """)
 
         val statement = cozyConnection.createStatement()
         val result = statement.executeUpdate("UPDATE person SET age = 30 WHERE name = 'Tom'")
@@ -61,4 +62,4 @@ class DriverTest {
     }
 }
 
-private fun String.executeOn(connection: Connection) = trimMargin().lines().forEach { connection.createStatement().executeUpdate(it) }
+private fun Connection.execute(@Language("SQL") sql: String) = sql.trimMargin().lines().forEach { createStatement().executeUpdate(it) }
