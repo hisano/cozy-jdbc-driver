@@ -33,6 +33,29 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
         return rowIndex < queryResult.rows.size
     }
 
+    private operator fun get(columnIndex: Int): Any? {
+        val row = queryResult.rows[rowIndex];
+
+        if (columnIndex <= 0 || row.size < columnIndex) {
+            throw SQLException()
+        }
+
+        val value = row[columnIndex - 1]
+        wasNull = (value == null)
+        return value
+    }
+
+    private operator fun get(columnLabel: String?): Any? {
+        if (columnLabel == null || !queryResult.rows.columnNames().contains(columnLabel)) {
+            throw SQLException()
+        }
+
+        val row = queryResult.rows[rowIndex];
+        val value = row[columnLabel]
+        wasNull = (value == null)
+        return value
+    }
+
     override fun wasNull(): Boolean = wasNull
 
     override fun getString(columnIndex: Int): String {
@@ -67,29 +90,16 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
         TODO("Not yet implemented")
     }
 
-    override fun getInt(columnIndex: Int): Int {
-        val value = getValue(columnIndex)
+    override fun getInt(columnIndex: Int): Int = toInt(this[columnIndex])
+
+    override fun getInt(columnLabel: String?): Int = toInt(this[columnLabel])
+
+    private fun toInt(value: Any?): Int {
         return when (value) {
             is Number -> value.toInt()
             null -> 0
             else -> throw SQLException()
         }
-    }
-
-    private fun getValue(columnIndex: Int): Any? {
-        val row = queryResult.rows[rowIndex];
-
-        if (columnIndex <= 0 || row.size < columnIndex) {
-            throw SQLException()
-        }
-
-        val value = row[columnIndex - 1] 
-        wasNull = (value == null)        
-        return value
-    }
-
-    override fun getInt(columnLabel: String?): Int {
-        TODO("Not yet implemented")
     }
 
     override fun getLong(columnIndex: Int): Long {
