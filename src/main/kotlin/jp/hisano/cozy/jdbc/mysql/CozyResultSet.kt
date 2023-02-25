@@ -13,6 +13,9 @@ import java.util.*
 internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
     private var rowIndex = -1
 
+    @Volatile
+    private var wasNull = false
+
     override fun <T : Any?> unwrap(iface: Class<T>?): T {
         TODO("Not yet implemented")
     }
@@ -30,9 +33,7 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
         return rowIndex < queryResult.rows.size
     }
 
-    override fun wasNull(): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun wasNull(): Boolean = wasNull
 
     override fun getString(columnIndex: Int): String {
         TODO("Not yet implemented")
@@ -67,12 +68,24 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
     }
 
     override fun getInt(columnIndex: Int): Int {
-        val value = queryResult.rows[rowIndex].get(columnIndex - 1)
+        val value = getValue(columnIndex)
         return when (value) {
             is Number -> value.toInt()
             null -> 0
             else -> throw SQLException()
         }
+    }
+
+    private fun getValue(columnIndex: Int): Any? {
+        val row = queryResult.rows[rowIndex];
+
+        if (columnIndex <= 0 || row.size < columnIndex) {
+            throw SQLException()
+        }
+
+        val value = row[columnIndex - 1] 
+        wasNull = (value == null)        
+        return value
     }
 
     override fun getInt(columnLabel: String?): Int {
