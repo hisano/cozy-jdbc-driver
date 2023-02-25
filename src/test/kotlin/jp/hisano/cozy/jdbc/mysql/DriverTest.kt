@@ -1,7 +1,7 @@
 package jp.hisano.cozy.jdbc.mysql
 
 import org.intellij.lang.annotations.Language
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.testcontainers.containers.MySQLContainer
@@ -53,6 +53,28 @@ class DriverTest {
         while (resultSet.next()) {
             assertEquals(30, resultSet.getInt("age"))
         }
+    }
+
+    @Test
+    fun testExecute() {
+        mysqlConnection.execute("""
+            CREATE TABLE person (name VARCHAR(10), age SMALLINT);
+            INSERT INTO person VALUES ('Tom', 25);
+        """)
+
+        val updateStatement = cozyConnection.createStatement()
+        assertFalse(updateStatement.execute("UPDATE person SET age = 30 WHERE name = 'Tom'"))
+        assertNull(updateStatement.resultSet)
+        assertEquals(1, updateStatement.updateCount)
+
+        val selectStatement = cozyConnection.createStatement()
+        assertTrue(selectStatement.execute("SELECT age FROM person"))
+        selectStatement.resultSet.run {
+            assertNotNull(this)
+            assertTrue(next())
+            assertEquals(30, getInt("age"))
+        }
+        assertEquals(-1, selectStatement.updateCount)
     }
 
     companion object {
