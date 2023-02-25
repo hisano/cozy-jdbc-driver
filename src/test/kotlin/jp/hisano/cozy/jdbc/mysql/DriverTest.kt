@@ -11,10 +11,21 @@ import org.testcontainers.utility.DockerImageName
 import java.sql.Connection
 import java.sql.DriverManager
 
+// MySQL Docker image versions: https://hub.docker.com/_/mysql/tags
+private val LATEST_MAJOR_VERSIONS = listOf("8.0.32", "5.7.41", "5.6.51", "5.5.62")
+
+private fun getTargetVersion(): String {
+    val targetVersion = System.getProperty("TARGET_VERSION")
+    if (targetVersion.isNullOrEmpty()) {
+        return LATEST_MAJOR_VERSIONS[0]
+    }
+    return targetVersion
+}
+
 @Testcontainers(disabledWithoutDocker = true)
 class DriverTest {
     @Container
-    val container = MySQLContainer(DockerImageName.parse("mysql:8.0.32"))
+    val container = MySQLContainer(DockerImageName.parse("mysql:" + getTargetVersion()))
 
     lateinit var mysqlConnection: Connection
     lateinit var cozyConnection: Connection

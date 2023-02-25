@@ -30,6 +30,8 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+
+    systemProperty("TARGET_VERSION", System.getProperty("TARGET_VERSION"))
 }
 
 tasks.withType<KotlinCompile> {
