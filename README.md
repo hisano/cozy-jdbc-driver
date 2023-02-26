@@ -20,5 +20,5 @@ $ ./gradlew shadowJar
 ## How to test with MySQL version
 
 ```sh
-$ ./gradlew test -DTARGET_VERSION=8.0.32
+$ ./gradlew test "-DTARGET_VERSION=8.0.32"
 ```
