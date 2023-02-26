@@ -124,6 +124,8 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
     }
 
     override fun setCatalog(catalog: String?) {
+        throwSQLExceptionIfClosed()
+
         if (catalog == null) {
             throw SQLException()
         }
@@ -131,7 +133,9 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
         execute("USE $catalog")
     }
 
-    override fun getCatalog(): String {
+    override fun getCatalog(): String? {
+        throwSQLExceptionIfClosed()
+
         return getSystemVariable("database()")
     }
 
