@@ -143,37 +143,43 @@ class DriverTest {
 
     @Test
     fun testTransaction() {
-        mysqlConnection.execute("""
+        mysqlConnection.execute(
+            """
             CREATE TABLE person (name VARCHAR(10), age SMALLINT);
             INSERT INTO person VALUES ('Tom', 25);
-        """)
+            """
+        )
 
         val connection = cozyConnection
 
-        connection.autoCommit = false
+        executeTask("Rollback Check") {
+            connection.autoCommit = false
 
-        val rollbackUpdateStatement = connection.prepareStatement("UPDATE person SET age = ? WHERE name = ?")
-        rollbackUpdateStatement.setInt(1, 30)
-        rollbackUpdateStatement.setString(2, "Tom")
-        assertEquals(1, rollbackUpdateStatement.executeUpdate())
+            val rollbackUpdateStatement = connection.prepareStatement("UPDATE person SET age = ? WHERE name = ?")
+            rollbackUpdateStatement.setInt(1, 30)
+            rollbackUpdateStatement.setString(2, "Tom")
+            assertEquals(1, rollbackUpdateStatement.executeUpdate())
 
-        connection.rollback()
+            connection.rollback()
 
-        assertAge(connection, 25)
+            assertAge(connection, "Tom", 25)
+        }
 
-        val updateStatement = connection.prepareStatement("UPDATE person SET age = ? WHERE name = ?")
-        updateStatement.setInt(1, 30)
-        updateStatement.setString(2, "Tom")
-        assertEquals(1, updateStatement.executeUpdate())
+        executeTask("Commit Check") {
+            val updateStatement = connection.prepareStatement("UPDATE person SET age = ? WHERE name = ?")
+            updateStatement.setInt(1, 30)
+            updateStatement.setString(2, "Tom")
+            assertEquals(1, updateStatement.executeUpdate())
 
-        connection.commit()
+            connection.commit()
 
-        assertAge(connection, 30)
+            assertAge(connection, "Tom", 30)
+        }
     }
 
-    private fun assertAge(connection: Connection, age: Int) {
+    private fun assertAge(connection: Connection, name: String, age: Int) {
         val selectStatement = cozyConnection.createStatement()
-        assertTrue(selectStatement.execute("SELECT age FROM person"))
+        assertTrue(selectStatement.execute("SELECT age FROM person WHERE name = '$name'"))
         selectStatement.resultSet.run {
             assertNotNull(this)
             assertTrue(next())
@@ -190,3 +196,5 @@ class DriverTest {
 }
 
 private fun Connection.execute(@Language("SQL") sql: String) = sql.trimMargin().lines().forEach { createStatement().executeUpdate(it) }
+
+private inline fun executeTask(taskName: String = "", task: () -> Unit) = task()
