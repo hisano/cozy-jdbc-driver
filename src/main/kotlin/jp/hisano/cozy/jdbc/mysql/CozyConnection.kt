@@ -146,14 +146,22 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
     }
 
     override fun getTransactionIsolation(): Int {
-        val sqlLevel = getSystemVariable<String>("@@transaction_isolation")
-        return when (sqlLevel) {
+        val systemVariableName = when (getMajorVersion()) {
+            8 -> "@@transaction_isolation"
+            5 -> "@@tx_isolation"
+            else -> throw SQLException()
+        }
+        return when (getSystemVariable<String>(systemVariableName)) {
             "READ-UNCOMMITTED" -> TRANSACTION_READ_UNCOMMITTED
             "READ-COMMITTED" -> TRANSACTION_READ_COMMITTED
             "REPEATABLE-READ" -> TRANSACTION_REPEATABLE_READ
             "SERIALIZABLE" -> TRANSACTION_SERIALIZABLE
             else -> throw SQLException()
         }
+    }
+
+    private fun getMajorVersion(): Int {
+        return getSystemVariable<String>("@@version").substringBefore(".").toInt()
     }
 
     private inline fun <reified T> getSystemVariable(name: String): T {
