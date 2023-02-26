@@ -56,22 +56,35 @@ class DriverTest {
     }
 
     @Test
-    fun testUpdate() {
-        mysqlConnection.execute("""
+    fun testStatement() {
+        mysqlConnection.execute(
+            """
             CREATE TABLE person (name VARCHAR(10), age SMALLINT);
             INSERT INTO person VALUES ('Tom', 25);
-        """)
+            """
+        )
 
-        val statement = cozyConnection.createStatement()
-        val result = statement.executeUpdate("UPDATE person SET age = 30 WHERE name = 'Tom'")
-        assertEquals(1, result)
-        val resultSet = statement.executeQuery("SELECT name, age FROM person")
-        while (resultSet.next()) {
+        val connection = cozyConnection
+
+        executeCheckFor("Statement#executeUpdate") {
+            val statement = connection.createStatement()
+            val result = statement.executeUpdate("UPDATE person SET age = 30 WHERE name = 'Tom'")
+            assertEquals(1, result)
+        }
+
+        executeCheckFor("Statement#executeQuery") {
+            val statement = connection.createStatement()
+            val resultSet = statement.executeQuery("SELECT name, age FROM person")
+
+            assertTrue(resultSet.next())
+
             assertEquals("Tom", resultSet.getString(1))
             assertEquals("Tom", resultSet.getString("name"))
 
             assertEquals(30, resultSet.getInt(2))
             assertEquals(30, resultSet.getInt("age"))
+
+            assertFalse(resultSet.next())
         }
     }
 
