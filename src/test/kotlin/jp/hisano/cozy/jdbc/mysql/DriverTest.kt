@@ -37,7 +37,7 @@ class DriverTest {
         val connection = cozyConnection
 
         executeCheckFor("Statement#executeQuery", "ResultSet#get*") {
-            val statement = cozyConnection.createStatement()
+            val statement = connection.createStatement()
             val resultSet = statement.executeQuery("SELECT value FROM test")
 
             assertTrue(resultSet.next())
@@ -98,14 +98,14 @@ class DriverTest {
         val connection = cozyConnection
 
         executeCheckFor("Statement#execute", "Statement#updateCount") {
-            val update = cozyConnection.createStatement()
+            val update = connection.createStatement()
             assertFalse(update.execute("UPDATE person SET age = 30 WHERE name = 'Tom'"))
             assertNull(update.resultSet)
             assertEquals(1, update.updateCount)
         }
 
         executeCheckFor("Statement#execute", "Statement#resultSet") {
-            val select = cozyConnection.createStatement()
+            val select = connection.createStatement()
             assertTrue(select.execute("SELECT age FROM person"))
             select.resultSet.run {
                 assertNotNull(this)
@@ -205,7 +205,7 @@ class DriverTest {
     }
 
     private fun assertAge(connection: Connection, name: String, age: Int) {
-        val selectStatement = cozyConnection.createStatement()
+        val selectStatement = connection.createStatement()
         assertTrue(selectStatement.execute("SELECT age FROM person WHERE name = '$name'"))
         selectStatement.resultSet.run {
             assertNotNull(this)
