@@ -39,10 +39,6 @@ class CozyDriver : Driver {
         return url?.startsWith("jdbc:cozy:mysql://") ?: false
     }
 
-    override fun getPropertyInfo(url: String?, info: Properties?): Array<DriverPropertyInfo> {
-        TODO("Not yet implemented")
-    }
-
     override fun getMajorVersion(): Int = DRIVER_MAJOR_VERSION
 
     override fun getMinorVersion(): Int = DRIVER_MINOR_VERSION
@@ -50,4 +46,8 @@ class CozyDriver : Driver {
     override fun jdbcCompliant(): Boolean = IS_TCK_PASSED && HAS_MYSQL_SQL_92_COMPLIANCE
 
     override fun getParentLogger(): Logger = throw SQLFeatureNotSupportedException()
+
+    override fun getPropertyInfo(url: String?, info: Properties?): Array<DriverPropertyInfo> {
+        TODO("Not yet implemented")
+    }
 }

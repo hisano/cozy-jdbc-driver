@@ -19,14 +19,6 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
 
     private val isClosed = AtomicBoolean()
 
-    override fun <T : Any?> unwrap(iface: Class<T>?): T {
-        TODO("Not yet implemented")
-    }
-
-    override fun isWrapperFor(iface: Class<*>?): Boolean {
-        TODO("Not yet implemented")
-    }
-
     override fun close() {
         if (!isClosed.compareAndSet(false, true)) {
             return
@@ -151,6 +143,14 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
             null -> 0.0
             else -> throw SQLException()
         }
+    }
+
+    override fun <T : Any?> unwrap(iface: Class<T>?): T {
+        TODO("Not yet implemented")
+    }
+
+    override fun isWrapperFor(iface: Class<*>?): Boolean {
+        TODO("Not yet implemented")
     }
 
     override fun getBigDecimal(columnIndex: Int, scale: Int): BigDecimal {
@@ -828,5 +828,4 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
     override fun updateNCharacterStream(columnLabel: String?, reader: Reader?) {
         TODO("Not yet implemented")
     }
-
 }
