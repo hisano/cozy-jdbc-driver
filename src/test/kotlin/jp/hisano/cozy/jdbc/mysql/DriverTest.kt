@@ -110,34 +110,42 @@ class DriverTest {
 
     @Test
     fun testPreparedStatement() {
-        mysqlConnection.execute("""
+        mysqlConnection.execute(
+            """
             CREATE TABLE person (name VARCHAR(10), age SMALLINT);
             INSERT INTO person VALUES ('Tom', 25);
-        """)
+            """
+        )
 
         val connection = cozyConnection
 
-        val updateStatement = connection.prepareStatement("UPDATE person SET age = ? WHERE name = ?")
-        updateStatement.setInt(1, 30)
-        updateStatement.setString(2, "Tom")
-        assertEquals(1, updateStatement.executeUpdate())
-
-        val selectStatement = connection.prepareStatement("SELECT age FROM person WHERE name = ?")
-        selectStatement.setString(1, "Tom")
-        assertTrue(selectStatement.execute())
-        selectStatement.resultSet.run {
-            assertNotNull(this)
-            assertTrue(next())
-            assertEquals(30, getInt("age"))
+        executeCheckFor("PreparedStatement#executeUpdate") {
+            val update = connection.prepareStatement("UPDATE person SET age = ? WHERE name = ?")
+            update.setInt(1, 30)
+            update.setString(2, "Tom")
+            assertEquals(1, update.executeUpdate())
         }
-        assertEquals(-1, selectStatement.updateCount)
 
-        val selectStatementForQuery = connection.prepareStatement("SELECT age FROM person WHERE name = ?")
-        selectStatementForQuery.setString(1, "Tom")
-        selectStatementForQuery.executeQuery().run {
-            assertNotNull(this)
-            assertTrue(next())
-            assertEquals(30, getInt("age"))
+        executeCheckFor("PreparedStatement#execute") {
+            val select = connection.prepareStatement("SELECT age FROM person WHERE name = ?")
+            select.setString(1, "Tom")
+            assertTrue(select.execute())
+            select.resultSet.run {
+                assertNotNull(this)
+                assertTrue(next())
+                assertEquals(30, getInt("age"))
+            }
+            assertEquals(-1, select.updateCount)
+        }
+
+        executeCheckFor("PreparedStatement#executeQuery") {
+            val select = connection.prepareStatement("SELECT age FROM person WHERE name = ?")
+            select.setString(1, "Tom")
+            select.executeQuery().run {
+                assertNotNull(this)
+                assertTrue(next())
+                assertEquals(30, getInt("age"))
+            }
         }
     }
 
@@ -152,24 +160,24 @@ class DriverTest {
 
         val connection = cozyConnection
 
-        executeTask("Rollback Check") {
-            connection.autoCommit = false
+        connection.autoCommit = false
 
-            val rollbackUpdateStatement = connection.prepareStatement("UPDATE person SET age = ? WHERE name = ?")
-            rollbackUpdateStatement.setInt(1, 30)
-            rollbackUpdateStatement.setString(2, "Tom")
-            assertEquals(1, rollbackUpdateStatement.executeUpdate())
+        executeCheckFor("Connection#rollback") {
+            val update = connection.prepareStatement("UPDATE person SET age = ? WHERE name = ?")
+            update.setInt(1, 30)
+            update.setString(2, "Tom")
+            assertEquals(1, update.executeUpdate())
 
             connection.rollback()
 
             assertAge(connection, "Tom", 25)
         }
 
-        executeTask("Commit Check") {
-            val updateStatement = connection.prepareStatement("UPDATE person SET age = ? WHERE name = ?")
-            updateStatement.setInt(1, 30)
-            updateStatement.setString(2, "Tom")
-            assertEquals(1, updateStatement.executeUpdate())
+        executeCheckFor("Connection#commit") {
+            val update = connection.prepareStatement("UPDATE person SET age = ? WHERE name = ?")
+            update.setInt(1, 30)
+            update.setString(2, "Tom")
+            assertEquals(1, update.executeUpdate())
 
             connection.commit()
 
@@ -197,4 +205,4 @@ class DriverTest {
 
 private fun Connection.execute(@Language("SQL") sql: String) = sql.trimMargin().lines().forEach { createStatement().executeUpdate(it) }
 
-private inline fun executeTask(taskName: String = "", task: () -> Unit) = task()
+private inline fun executeCheckFor(methodName: String = "", task: () -> Unit) = task()
