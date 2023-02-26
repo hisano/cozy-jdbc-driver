@@ -217,6 +217,18 @@ class DriverTest {
         }
     }
 
+    @Test
+    fun testCatalog() {
+        val connection = cozyConnection
+
+        executeCheckFor("Connection#catalog") {
+            assertEquals(connection.catalog, "test")
+
+            connection.catalog = "test"
+            assertEquals(connection.catalog, "test")
+        }
+    }
+
     private fun assertAge(connection: Connection, name: String, age: Int) {
         val selectStatement = connection.createStatement()
         assertTrue(selectStatement.execute("SELECT age FROM person WHERE name = '$name'"))

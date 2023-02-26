@@ -178,6 +178,18 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
         }
     }
 
+    override fun setCatalog(catalog: String?) {
+        if (catalog == null) {
+            throw SQLException()
+        }
+
+        execute("USE $catalog")
+    }
+
+    override fun getCatalog(): String {
+        return getSystemVariable("database()")
+    }
+
     override fun rollback(savepoint: Savepoint?) {
         TODO("Not yet implemented")
     }
@@ -191,14 +203,6 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
     }
 
     override fun isReadOnly(): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun setCatalog(catalog: String?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getCatalog(): String {
         TODO("Not yet implemented")
     }
 
