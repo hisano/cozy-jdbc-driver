@@ -77,24 +77,32 @@ class DriverTest {
 
     @Test
     fun testExecute() {
-        mysqlConnection.execute("""
+        mysqlConnection.execute(
+            """
             CREATE TABLE person (name VARCHAR(10), age SMALLINT);
             INSERT INTO person VALUES ('Tom', 25);
-        """)
+            """
+        )
 
-        val updateStatement = cozyConnection.createStatement()
-        assertFalse(updateStatement.execute("UPDATE person SET age = 30 WHERE name = 'Tom'"))
-        assertNull(updateStatement.resultSet)
-        assertEquals(1, updateStatement.updateCount)
+        val connection = cozyConnection
 
-        val selectStatement = cozyConnection.createStatement()
-        assertTrue(selectStatement.execute("SELECT age FROM person"))
-        selectStatement.resultSet.run {
-            assertNotNull(this)
-            assertTrue(next())
-            assertEquals(30, getInt("age"))
+        executeCheckFor("Statement#execute", "Statement#updateCount") {
+            val update = cozyConnection.createStatement()
+            assertFalse(update.execute("UPDATE person SET age = 30 WHERE name = 'Tom'"))
+            assertNull(update.resultSet)
+            assertEquals(1, update.updateCount)
         }
-        assertEquals(-1, selectStatement.updateCount)
+
+        executeCheckFor("Statement#execute", "Statement#resultSet") {
+            val select = cozyConnection.createStatement()
+            assertTrue(select.execute("SELECT age FROM person"))
+            select.resultSet.run {
+                assertNotNull(this)
+                assertTrue(next())
+                assertEquals(30, getInt("age"))
+            }
+            assertEquals(-1, select.updateCount)
+        }
     }
 
     @Test
@@ -206,3 +214,5 @@ class DriverTest {
 private fun Connection.execute(@Language("SQL") sql: String) = sql.trimMargin().lines().forEach { createStatement().executeUpdate(it) }
 
 private inline fun executeCheckFor(methodName: String = "", task: () -> Unit) = task()
+
+private inline fun executeCheckFor(firstMethodName: String = "", secondMethodName: String = "", task: () -> Unit) = task()
