@@ -113,7 +113,7 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
 
     override fun setAutoCommit(newValue: Boolean) {
         val newNumberValue = if (newValue) 1 else 0
-        createStatement().execute("SET autocommit = $newNumberValue")
+        execute("SET autocommit = $newNumberValue")
     }
 
     override fun getAutoCommit(): Boolean {
@@ -126,11 +126,15 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
     }
 
     override fun commit() {
-        TODO("Not yet implemented")
+        execute("COMMIT")
     }
 
     override fun rollback() {
-        TODO("Not yet implemented")
+        execute("ROLLBACK ")
+    }
+
+    private fun execute(sql: String) {
+        createStatement().execute(sql)
     }
 
     override fun rollback(savepoint: Savepoint?) {
