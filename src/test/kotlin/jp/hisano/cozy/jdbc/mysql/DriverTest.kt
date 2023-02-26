@@ -8,6 +8,7 @@ import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import java.lang.RuntimeException
 import java.sql.Connection
 import java.sql.Connection.*
 import java.sql.DriverManager
@@ -226,6 +227,18 @@ class DriverTest {
 
             connection.catalog = "test"
             assertEquals(connection.catalog, "test")
+        }
+    }
+
+    @Test
+    fun testWrapper() {
+        val connection = cozyConnection
+
+        executeCheckFor("Connection#isWrapperFor", "Connection#unwrap") { 
+            assertTrue(connection.isWrapperFor(Connection::class.java))
+            assertNotNull(connection.unwrap(Connection::class.java))
+
+            assertFalse(connection.isWrapperFor(RuntimeException::class.java))
         }
     }
 

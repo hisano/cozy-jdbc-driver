@@ -3,7 +3,6 @@ package jp.hisano.cozy.jdbc.mysql
 import com.github.jasync.sql.db.ConcreteConnection
 import com.github.jasync.sql.db.Configuration
 import com.github.jasync.sql.db.mysql.pool.MySQLConnectionFactory
-import java.lang.IllegalArgumentException
 import java.sql.*
 import java.sql.Connection.*
 import java.sql.ResultSet.*
@@ -137,11 +136,17 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
     }
 
     override fun <T : Any?> unwrap(iface: Class<T>?): T {
-        TODO("Not yet implemented")
+        if (iface == null || !isWrapperFor(iface)) {
+            throw SQLException()
+        }
+        return iface.cast(this)
     }
 
     override fun isWrapperFor(iface: Class<*>?): Boolean {
-        TODO("Not yet implemented")
+        if (iface == null) {
+            throw SQLException()
+        }
+        return iface.isInstance(this)
     }
 
     override fun prepareStatement(sql: String?, resultSetType: Int, resultSetConcurrency: Int): PreparedStatement {
