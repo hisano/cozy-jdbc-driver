@@ -9,6 +9,7 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import java.sql.Connection
+import java.sql.Connection.*
 import java.sql.DriverManager
 
 @Testcontainers(disabledWithoutDocker = true)
@@ -201,6 +202,18 @@ class DriverTest {
             connection.commit()
 
             assertAge(connection, "Tom", 30)
+        }
+    }
+
+    @Test
+    fun testTransactionIsolation() {
+        val connection = cozyConnection
+
+        executeCheckFor("Connection#transactionIsolation") {
+            listOf(TRANSACTION_READ_UNCOMMITTED, TRANSACTION_READ_COMMITTED, TRANSACTION_REPEATABLE_READ, TRANSACTION_SERIALIZABLE).forEach {
+                connection.transactionIsolation = it
+                assertEquals(it, connection.transactionIsolation)
+            }
         }
     }
 

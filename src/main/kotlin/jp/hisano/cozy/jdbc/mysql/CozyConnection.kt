@@ -3,7 +3,9 @@ package jp.hisano.cozy.jdbc.mysql
 import com.github.jasync.sql.db.ConcreteConnection
 import com.github.jasync.sql.db.Configuration
 import com.github.jasync.sql.db.mysql.pool.MySQLConnectionFactory
+import java.lang.IllegalArgumentException
 import java.sql.*
+import java.sql.Connection.*
 import java.sql.ResultSet.*
 import java.util.*
 import java.util.concurrent.Executor
@@ -117,12 +119,7 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
     }
 
     override fun getAutoCommit(): Boolean {
-        return createStatement().use {
-            it.executeQuery("SELECT @@autocommit").use {
-                it.next()
-                it.getBoolean(1)
-            }
-        }
+        return getSystemVariable("@@autocommit")
     }
 
     override fun commit() {
@@ -135,6 +132,42 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
 
     private fun execute(sql: String) {
         createStatement().execute(sql)
+    }
+
+    override fun setTransactionIsolation(level: Int) {
+        val sqlLevel = when (level) {
+            TRANSACTION_READ_UNCOMMITTED -> "READ UNCOMMITTED"
+            TRANSACTION_READ_COMMITTED -> "READ COMMITTED"
+            TRANSACTION_REPEATABLE_READ -> "REPEATABLE READ"
+            TRANSACTION_SERIALIZABLE -> "SERIALIZABLE"
+            else -> throw SQLException()
+        }
+        execute("SET SESSION TRANSACTION ISOLATION LEVEL $sqlLevel")
+    }
+
+    override fun getTransactionIsolation(): Int {
+        val sqlLevel = getSystemVariable<String>("@@transaction_isolation")
+        return when (sqlLevel) {
+            "READ-UNCOMMITTED" -> TRANSACTION_READ_UNCOMMITTED
+            "READ-COMMITTED" -> TRANSACTION_READ_COMMITTED
+            "REPEATABLE-READ" -> TRANSACTION_REPEATABLE_READ
+            "SERIALIZABLE" -> TRANSACTION_SERIALIZABLE
+            else -> throw SQLException()
+        }
+    }
+
+    private inline fun <reified T> getSystemVariable(name: String): T {
+        return createStatement().use {
+            it.executeQuery("SELECT $name").use {
+                it.next()
+                when (T::class) {
+                    Boolean::class -> it.getBoolean(1)
+                    Int::class -> it.getInt(1)
+                    String::class -> it.getString(1)
+                    else -> throw IllegalArgumentException()
+                }
+            } as T
+        }
     }
 
     override fun rollback(savepoint: Savepoint?) {
@@ -158,14 +191,6 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
     }
 
     override fun getCatalog(): String {
-        TODO("Not yet implemented")
-    }
-
-    override fun setTransactionIsolation(level: Int) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getTransactionIsolation(): Int {
         TODO("Not yet implemented")
     }
 
