@@ -124,16 +124,33 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
     }
 
     override fun setCatalog(catalog: String?) {
-        throwSQLExceptionIfClosed()
-
-        if (catalog == null) {
-            throw SQLException()
-        }
-
-        execute("USE $catalog")
+        setDatabase(catalog)
     }
 
     override fun getCatalog(): String? {
+        return getDatabase()
+    }
+
+    override fun setSchema(schema: String?) {
+        setDatabase(schema)
+    }
+
+    override fun getSchema(): String? {
+        return getDatabase()
+    }
+
+    // Database == Catalog == Schema in MySQL: https://stackoverflow.com/a/7944489
+    private fun setDatabase(newValue: String?) {
+        throwSQLExceptionIfClosed()
+
+        if (newValue == null) {
+            throw SQLException()
+        }
+
+        execute("USE $newValue")
+    }
+
+    private fun getDatabase(): String? {
         throwSQLExceptionIfClosed()
 
         return getSystemVariable("database()")
@@ -284,14 +301,6 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
     }
 
     override fun createStruct(typeName: String?, attributes: Array<out Any>?): Struct {
-        TODO("Not yet implemented")
-    }
-
-    override fun setSchema(schema: String?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getSchema(): String {
         TODO("Not yet implemented")
     }
 

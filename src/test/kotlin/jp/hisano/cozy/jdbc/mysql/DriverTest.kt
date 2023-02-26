@@ -242,6 +242,23 @@ class DriverTest {
         }
     }
 
+    @Test
+    fun testSchema() {
+        val connection = cozyConnection
+
+        if (connection !is CozyConnection) {
+            // MySQL Connector/J switches processing with databaseTerm property: https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-connp-props-connection.html
+            return
+        }
+
+        executeCheckFor("Connection#schema") {
+            assertEquals(connection.schema, "test")
+
+            connection.schema = "test"
+            assertEquals(connection.schema, "test")
+        }
+    }
+
     private fun assertAge(connection: Connection, name: String, age: Int) {
         val selectStatement = connection.createStatement()
         assertTrue(selectStatement.execute("SELECT age FROM person WHERE name = '$name'"))
