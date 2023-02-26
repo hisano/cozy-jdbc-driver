@@ -38,20 +38,29 @@ class DriverTest {
 
     @Test
     fun testSmallInt() {
-        mysqlConnection.execute("""
+        mysqlConnection.execute(
+            """
             CREATE TABLE test (value smallint);
             INSERT INTO test VALUES (100);
-        """)
+            """
+        )
 
-        val statement = cozyConnection.createStatement()
-        val resultSet = statement.executeQuery("SELECT value FROM test")
-        while (resultSet.next()) {
+        val connection = cozyConnection
+
+        executeCheckFor("Statement#executeQuery", "ResultSet#get*") {
+            val statement = cozyConnection.createStatement()
+            val resultSet = statement.executeQuery("SELECT value FROM test")
+
+            assertTrue(resultSet.next())
+
             assertEquals(100, resultSet.getByte(1))
             assertEquals(100, resultSet.getShort(1))
             assertEquals(100, resultSet.getInt(1))
             assertEquals(100, resultSet.getLong(1))
             assertEquals(100.0f, resultSet.getFloat(1))
             assertEquals(100.0, resultSet.getDouble(1))
+
+            assertFalse(resultSet.next())
         }
     }
 
