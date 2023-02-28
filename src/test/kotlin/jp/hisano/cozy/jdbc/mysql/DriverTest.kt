@@ -1,16 +1,22 @@
 package jp.hisano.cozy.jdbc.mysql
 
 import org.intellij.lang.annotations.Language
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
-import java.lang.RuntimeException
 import java.sql.Connection
-import java.sql.Connection.*
+import java.sql.Connection.TRANSACTION_READ_COMMITTED
+import java.sql.Connection.TRANSACTION_READ_UNCOMMITTED
+import java.sql.Connection.TRANSACTION_REPEATABLE_READ
+import java.sql.Connection.TRANSACTION_SERIALIZABLE
 import java.sql.DriverManager
 
 @Testcontainers(disabledWithoutDocker = true)
