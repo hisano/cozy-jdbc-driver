@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.7.10"
 
     id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("io.gitlab.arturbosch.detekt") version "1.22.0"
 }
 
 group = "jp.hisano"
