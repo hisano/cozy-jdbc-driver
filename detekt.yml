@@ -1,3 +1,7 @@
 style:
   MaxLineLength:
     active: false
+
+complexity:
+  TooManyFunctions:
+    active: false
