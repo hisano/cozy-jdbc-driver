@@ -23,6 +23,7 @@ import java.sql.Timestamp
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
+@Suppress("LargeClass")
 internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
     private var rowIndex = -1
 
