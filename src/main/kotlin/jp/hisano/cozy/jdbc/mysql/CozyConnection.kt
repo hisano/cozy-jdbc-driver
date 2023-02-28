@@ -117,7 +117,7 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
                     Boolean::class -> it.getBoolean(1)
                     Int::class -> it.getInt(1)
                     String::class -> it.getString(1)
-                    else -> throw IllegalArgumentException()
+                    else -> throw IllegalArgumentException("no system variable: name = ${name}")
                 }
             } as T
         }
