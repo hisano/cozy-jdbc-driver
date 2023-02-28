@@ -29,6 +29,11 @@ dependencies {
     testImplementation("mysql:mysql-connector-java:8.0.32")
 }
 
+detekt {
+    buildUponDefaultConfig = true
+    config = files("detekt.yml")
+}
+
 tasks.test {
     useJUnitPlatform()
 
