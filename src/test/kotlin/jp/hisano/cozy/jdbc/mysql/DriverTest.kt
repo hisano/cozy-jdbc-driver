@@ -296,6 +296,8 @@ private fun getTargetVersion(): String {
 
 private fun Connection.execute(@Language("SQL") sql: String) = sql.trimMargin().lines().forEach { createStatement().executeUpdate(it) }
 
+@Suppress("UnusedPrivateMember")
 private inline fun executeCheckFor(methodName: String = "", task: () -> Unit) = task()
 
+@Suppress("UnusedPrivateMember")
 private inline fun executeCheckFor(firstMethodName: String = "", secondMethodName: String = "", task: () -> Unit) = task()
