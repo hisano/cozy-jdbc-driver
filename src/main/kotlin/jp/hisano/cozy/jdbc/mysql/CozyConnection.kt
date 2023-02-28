@@ -107,6 +107,7 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
         execute("SET SESSION TRANSACTION ISOLATION LEVEL $sqlLevel")
     }
 
+    @Suppress("MagicNumber")
     override fun getTransactionIsolation(): Int {
         val systemVariableName = when (getMajorVersion()) {
             8 -> "@@transaction_isolation"
