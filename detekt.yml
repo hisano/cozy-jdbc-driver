@@ -1,6 +1,8 @@
 style:
   MaxLineLength:
     active: false
+  ReturnCount:
+    max: 10
 
 complexity:
   TooManyFunctions:
