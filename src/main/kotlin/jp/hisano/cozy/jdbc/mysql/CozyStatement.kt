@@ -78,10 +78,10 @@ internal open class CozyStatement(
         if (sql.isNullOrEmpty()) {
             throw SQLException()
         }
-        return executeSql(sql, null)
+        return executeSql(sql)
     }
 
-    protected fun executeSql(sql: String, parameters: List<Any?>?): Boolean {
+    protected fun executeSql(sql: String, parameters: List<Any?>? = null): Boolean {
         mutex.withLock {
             val completableFuture = if (parameters == null) {
                 connection.concreteConnection.sendQuery(sql)
