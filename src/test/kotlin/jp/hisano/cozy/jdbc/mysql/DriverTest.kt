@@ -18,6 +18,8 @@ import java.sql.Connection.TRANSACTION_READ_UNCOMMITTED
 import java.sql.Connection.TRANSACTION_REPEATABLE_READ
 import java.sql.Connection.TRANSACTION_SERIALIZABLE
 import java.sql.DriverManager
+import java.sql.ResultSet.CONCUR_READ_ONLY
+import java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE
 
 @Testcontainers(disabledWithoutDocker = true)
 class DriverTest {
@@ -121,6 +123,45 @@ class DriverTest {
                 assertEquals(30, getInt("age"))
             }
             assertEquals(-1, select.updateCount)
+        }
+    }
+
+    @Test
+    fun testExecuteWithScroll() {
+        mysqlConnection.execute(
+            """
+            CREATE TABLE person (name VARCHAR(10), age SMALLINT);
+            INSERT INTO person VALUES ('Tom', 25);
+            INSERT INTO person VALUES ('Ken', 25);
+            """
+        )
+
+        val connection = cozyConnection
+
+        executeCheckFor("Statement#execute", "Statement#resultSet") {
+            val select = connection.createStatement(TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY)
+            assertTrue(select.execute("SELECT age FROM person"))
+            select.resultSet.run {
+                assertNotNull(this)
+
+                assertTrue(next())
+                assertTrue(next())
+                assertFalse(next())
+
+                assertTrue(previous())
+                assertTrue(previous())
+                assertFalse(previous())
+
+                assertFalse(absolute(0))
+                assertTrue(absolute(1))
+                assertEquals(25, getInt("age"))
+
+                assertTrue(absolute(1))
+                assertTrue(relative(1))
+                assertEquals(25, getInt("age"))
+
+                assertFalse(relative(1))
+            }
         }
     }
 

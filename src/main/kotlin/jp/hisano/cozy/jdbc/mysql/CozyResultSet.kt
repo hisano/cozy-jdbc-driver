@@ -22,10 +22,11 @@ import java.sql.Time
 import java.sql.Timestamp
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 @Suppress("LargeClass")
 internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
-    private var rowIndex = -1
+    private var rowIndex = AtomicInteger()
 
     @Volatile
     private var wasNull = false
@@ -40,13 +41,24 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
 
     override fun isClosed(): Boolean = isClosed.get()
 
-    override fun next(): Boolean {
-        rowIndex++
-        return rowIndex < queryResult.rows.size
+    override fun next(): Boolean = rowIndex.update { it + 1 }
+
+    override fun previous(): Boolean = rowIndex.update { it - 1 }
+
+    override fun absolute(row: Int): Boolean = rowIndex.update { row }
+
+    override fun relative(rows: Int): Boolean = rowIndex.update { it + rows }
+
+    private fun AtomicInteger.update(updater: (Int) -> Int): Boolean {
+        synchronized(this) {
+            val newRowIndex = updater(get())
+            set(newRowIndex)
+            return newRowIndex in 1..queryResult.rows.size
+        }
     }
 
     private operator fun get(columnIndex: Int): Any? {
-        val row = queryResult.rows[rowIndex]
+        val row = queryResult.rows[rowIndex.get() - 1]
 
         if (columnIndex <= 0 || row.size < columnIndex) {
             throw SQLException()
@@ -62,7 +74,7 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
             throw SQLException()
         }
 
-        val row = queryResult.rows[rowIndex];
+        val row = queryResult.rows[rowIndex.get() - 1]
         val value = row[columnLabel]
         wasNull = (value == null)
         return value
@@ -347,18 +359,6 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
     }
 
     override fun getRow(): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun absolute(row: Int): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun relative(rows: Int): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun previous(): Boolean {
         TODO("Not yet implemented")
     }
 
