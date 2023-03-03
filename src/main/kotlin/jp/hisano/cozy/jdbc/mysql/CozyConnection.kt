@@ -93,7 +93,9 @@ internal class CozyConnection(host: String, port: Int, database: String, usernam
     }
 
     private fun execute(sql: String) {
-        createStatement().execute(sql)
+        createStatement().use {
+            it.execute(sql)
+        }
     }
 
     override fun setTransactionIsolation(level: Int) {
