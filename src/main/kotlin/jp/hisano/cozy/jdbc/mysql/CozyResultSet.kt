@@ -46,7 +46,7 @@ internal class CozyResultSet(val queryResult: QueryResult) : ResultSet {
     }
 
     private operator fun get(columnIndex: Int): Any? {
-        val row = queryResult.rows[rowIndex];
+        val row = queryResult.rows[rowIndex]
 
         if (columnIndex <= 0 || row.size < columnIndex) {
             throw SQLException()
