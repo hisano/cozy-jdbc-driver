@@ -75,7 +75,7 @@ internal open class CozyStatement(
     }
 
     override fun execute(sql: String?): Boolean {
-        if (sql == null || sql.length == 0) {
+        if (sql.isNullOrEmpty()) {
             throw SQLException()
         }
         return executeSql(sql, null)
